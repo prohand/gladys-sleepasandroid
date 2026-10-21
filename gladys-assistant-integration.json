@@ -1,0 +1,1332 @@
+{
+  "manifest_version": 1,
+  "type": "device",
+  "name": "Sleep as Android",
+  "description": {
+    "en": "Sleep tracking, alarms and sleep phases of the Sleep as Android app in Gladys.",
+    "fr": "Suivi du sommeil, réveils et phases de sommeil de l'appli Sleep as Android dans Gladys.",
+    "de": "Schlafaufzeichnung, Wecker und Schlafphasen der App Sleep as Android in Gladys.",
+    "es": "Seguimiento del sueño, alarmas y fases de sueño de la app Sleep as Android en Gladys."
+  },
+  "version": "1.0.0",
+  "docker_image": "ghcr.io/prohand/gladys-sleepasandroid:1.0.0",
+  "gladys_version": ">=5.1.0",
+  "cover_image": "https://raw.githubusercontent.com/prohand/gladys-sleepasandroid/main/cover.png",
+  "categories": ["services", "assistants"],
+  "transports": ["local", "cloud"],
+  "webhooks": [
+    {
+      "key": "events",
+      "label": {
+        "en": "Sleep as Android events",
+        "fr": "Événements Sleep as Android",
+        "de": "Sleep-as-Android-Ereignisse",
+        "es": "Eventos de Sleep as Android"
+      },
+      "mode": "fire_and_forget"
+    }
+  ],
+  "config_schema": [
+    {
+      "key": "intro",
+      "type": "section",
+      "label": {
+        "en": "Getting started",
+        "fr": "Pour commencer",
+        "de": "Erste Schritte",
+        "es": "Primeros pasos"
+      },
+      "description": {
+        "en": "Sleep as Android sends its events (tracking started, alarm ringing, deep sleep…) two ways, use one or both. Local: MQTT, to a broker on your network (Settings > Services > Automation > MQTT in the app). Cloud: a webhook relayed by Gladys Plus, which also works away from home (Settings > Services > Automation > Webhooks). \"Test the connection\" gives the exact topic and URL to type in the app.",
+        "fr": "Sleep as Android envoie ses événements (suivi démarré, réveil qui sonne, sommeil profond…) de deux façons, utilisez l'une ou les deux. Local : MQTT, vers un broker de votre réseau (Paramètres > Services > Automatisation > MQTT dans l'appli). Cloud : un webhook relayé par Gladys Plus, qui marche aussi hors de la maison (Paramètres > Services > Automatisation > Webhooks). « Tester la connexion » donne le topic et l'URL exacts à saisir dans l'appli.",
+        "de": "Sleep as Android sendet seine Ereignisse (Aufzeichnung gestartet, Wecker klingelt, Tiefschlaf…) auf zwei Wegen, nutze einen oder beide. Lokal: MQTT, an einen Broker in deinem Netzwerk (Einstellungen > Dienste > Automatisierung > MQTT in der App). Cloud: ein von Gladys Plus weitergeleiteter Webhook, der auch unterwegs funktioniert (Einstellungen > Dienste > Automatisierung > Webhooks). „Verbindung testen“ nennt das genaue Topic und die URL für die App.",
+        "es": "Sleep as Android envía sus eventos (seguimiento iniciado, alarma sonando, sueño profundo…) de dos maneras, use una o ambas. Local: MQTT, a un bróker de su red (Ajustes > Servicios > Automatización > MQTT en la app). Nube: un webhook retransmitido por Gladys Plus, que también funciona fuera de casa (Ajustes > Servicios > Automatización > Webhooks). «Probar la conexión» indica el tema y la URL exactos que hay que introducir en la app."
+      },
+      "links": [
+        {
+          "url": "https://docs.sleep.urbandroid.org/services/automation.html",
+          "label": {
+            "en": "Sleep as Android automation",
+            "fr": "Automatisation Sleep as Android",
+            "de": "Sleep-as-Android-Automatisierung",
+            "es": "Automatización de Sleep as Android"
+          }
+        },
+        {
+          "url": "https://github.com/prohand/gladys-sleepasandroid/blob/main/docs/en.md",
+          "label": {
+            "en": "Integration documentation",
+            "fr": "Documentation de l'intégration",
+            "de": "Dokumentation der Integration",
+            "es": "Documentación de la integración"
+          }
+        }
+      ]
+    },
+    {
+      "key": "sleepers",
+      "type": "string",
+      "label": {
+        "en": "Sleepers",
+        "fr": "Dormeurs",
+        "de": "Schläfer",
+        "es": "Durmientes"
+      },
+      "description": {
+        "en": "One phone per person? Their first names, separated by commas: one Gladys device each. Leave empty for a single phone. The first one listens to the base topic and to the URL as is, the others to the base topic followed by /their-name and to the URL followed by ?sleeper=their-name.",
+        "fr": "Un téléphone par personne ? Leurs prénoms, séparés par des virgules : un appareil Gladys chacun. Laissez vide pour un seul téléphone. Le premier écoute le topic de base et l'URL telle quelle, les autres le topic de base suivi de /leur-prénom et l'URL suivie de ?sleeper=leur-prénom.",
+        "de": "Ein Telefon pro Person? Ihre Vornamen, durch Kommas getrennt: je ein Gladys-Gerät. Leer lassen für ein einziges Telefon. Der Erste hört auf das Basis-Topic und die URL, wie sie ist, die anderen auf das Basis-Topic gefolgt von /ihr-name und die URL gefolgt von ?sleeper=ihr-name.",
+        "es": "¿Un teléfono por persona? Sus nombres, separados por comas: un dispositivo Gladys cada uno. Déjelo vacío para un solo teléfono. El primero escucha el tema base y la URL tal cual, los demás el tema base seguido de /su-nombre y la URL seguida de ?sleeper=su-nombre."
+      },
+      "placeholder": {
+        "en": "Alice, Bob",
+        "fr": "Alice, Bob",
+        "de": "Alice, Bob",
+        "es": "Alice, Bob"
+      },
+      "required": false,
+      "default": ""
+    },
+    {
+      "key": "mqtt_section",
+      "type": "section",
+      "label": {
+        "en": "Local: MQTT",
+        "fr": "Local : MQTT",
+        "de": "Lokal: MQTT",
+        "es": "Local: MQTT"
+      },
+      "description": {
+        "en": "The broker the app publishes to, e.g. the one of the Gladys MQTT integration. Leave the address empty to receive by Gladys Plus only.",
+        "fr": "Le broker sur lequel l'appli publie, par exemple celui de l'intégration MQTT de Gladys. Laissez l'adresse vide pour ne recevoir que par Gladys Plus.",
+        "de": "Der Broker, an den die App veröffentlicht, z. B. der der Gladys-MQTT-Integration. Lass die Adresse leer, um nur über Gladys Plus zu empfangen.",
+        "es": "El bróker en el que publica la app, p. ej. el de la integración MQTT de Gladys. Deje la dirección vacía para recibir solo por Gladys Plus."
+      }
+    },
+    {
+      "key": "mqtt_url",
+      "type": "string",
+      "label": {
+        "en": "MQTT broker address",
+        "fr": "Adresse du broker MQTT",
+        "de": "Adresse des MQTT-Brokers",
+        "es": "Dirección del bróker MQTT"
+      },
+      "description": {
+        "en": "mqtt://address:1883, or mqtts:// for TLS. Use the network address of the broker, never localhost: the integration runs in its own container.",
+        "fr": "mqtt://adresse:1883, ou mqtts:// pour TLS. Mettez l'adresse réseau du broker, jamais localhost : l'intégration tourne dans son propre conteneur.",
+        "de": "mqtt://adresse:1883, oder mqtts:// für TLS. Verwende die Netzwerkadresse des Brokers, nie localhost: Die Integration läuft in einem eigenen Container.",
+        "es": "mqtt://dirección:1883, o mqtts:// para TLS. Use la dirección de red del bróker, nunca localhost: la integración se ejecuta en su propio contenedor."
+      },
+      "placeholder": {
+        "en": "mqtt://192.168.1.10:1883",
+        "fr": "mqtt://192.168.1.10:1883",
+        "de": "mqtt://192.168.1.10:1883",
+        "es": "mqtt://192.168.1.10:1883"
+      },
+      "required": false,
+      "default": ""
+    },
+    {
+      "key": "mqtt_username",
+      "type": "string",
+      "label": {
+        "en": "MQTT user name",
+        "fr": "Utilisateur MQTT",
+        "de": "MQTT-Benutzername",
+        "es": "Usuario MQTT"
+      },
+      "required": false,
+      "default": ""
+    },
+    {
+      "key": "mqtt_password",
+      "type": "secret",
+      "label": {
+        "en": "MQTT password",
+        "fr": "Mot de passe MQTT",
+        "de": "MQTT-Passwort",
+        "es": "Contraseña MQTT"
+      },
+      "required": false
+    },
+    {
+      "key": "mqtt_topic",
+      "type": "string",
+      "label": {
+        "en": "MQTT topic",
+        "fr": "Topic MQTT",
+        "de": "MQTT-Topic",
+        "es": "Tema MQTT"
+      },
+      "description": {
+        "en": "The topic typed in the app. Every sub-topic is listened to too (one per sleeper).",
+        "fr": "Le topic saisi dans l'appli. Tous les sous-topics sont écoutés aussi (un par dormeur).",
+        "de": "Das in der App eingetragene Topic. Alle Unter-Topics werden ebenfalls abonniert (eines pro Schläfer).",
+        "es": "El tema introducido en la app. También se escuchan todos los subtemas (uno por durmiente)."
+      },
+      "placeholder": {
+        "en": "SleepAsAndroid",
+        "fr": "SleepAsAndroid",
+        "de": "SleepAsAndroid",
+        "es": "SleepAsAndroid"
+      },
+      "required": false,
+      "default": "SleepAsAndroid"
+    },
+    {
+      "key": "time_zone",
+      "type": "string",
+      "label": {
+        "en": "Time zone",
+        "fr": "Fuseau horaire",
+        "de": "Zeitzone",
+        "es": "Zona horaria"
+      },
+      "description": {
+        "en": "The time zone the next alarm is written in, an IANA name such as Europe/Paris.",
+        "fr": "Le fuseau horaire dans lequel le prochain réveil est écrit, un nom IANA comme Europe/Paris.",
+        "de": "Die Zeitzone, in der der nächste Wecker angezeigt wird, ein IANA-Name wie Europe/Berlin.",
+        "es": "La zona horaria en la que se escribe la próxima alarma, un nombre IANA como Europe/Madrid."
+      },
+      "placeholder": {
+        "en": "Europe/Paris",
+        "fr": "Europe/Paris",
+        "de": "Europe/Berlin",
+        "es": "Europe/Madrid"
+      },
+      "required": false,
+      "default": "Europe/Paris"
+    }
+  ],
+  "actions": [
+    {
+      "key": "test_connection",
+      "label": {
+        "en": "Test the connection",
+        "fr": "Tester la connexion",
+        "de": "Verbindung testen",
+        "es": "Probar la conexión"
+      },
+      "timeout_seconds": 15
+    },
+    {
+      "key": "simulate_event",
+      "label": {
+        "en": "Simulate an event",
+        "fr": "Simuler un événement",
+        "de": "Ereignis simulieren",
+        "es": "Simular un evento"
+      },
+      "timeout_seconds": 15,
+      "fields": [
+        {
+          "key": "simulate_intro",
+          "type": "section",
+          "label": {
+            "en": "Try your scenes",
+            "fr": "Essayez vos scènes",
+            "de": "Szenen ausprobieren",
+            "es": "Pruebe sus escenas"
+          },
+          "description": {
+            "en": "Plays an event as if the phone had sent it: the device, the scenes and the widget react for real.",
+            "fr": "Joue un événement comme si le téléphone l'avait envoyé : l'appareil, les scènes et le widget réagissent pour de vrai.",
+            "de": "Spielt ein Ereignis ab, als hätte das Telefon es gesendet: Gerät, Szenen und Widget reagieren wirklich.",
+            "es": "Reproduce un evento como si lo hubiera enviado el teléfono: el dispositivo, las escenas y el widget reaccionan de verdad."
+          }
+        },
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Sleeper",
+            "fr": "Dormeur",
+            "de": "Schläfer",
+            "es": "Durmiente"
+          },
+          "required": true
+        },
+        {
+          "key": "event",
+          "type": "select",
+          "label": {
+            "en": "Event",
+            "fr": "Événement",
+            "de": "Ereignis",
+            "es": "Evento"
+          },
+          "required": true,
+          "options": [
+            {
+              "value": "sleep_tracking_started",
+              "label": {
+                "en": "Tracking started",
+                "fr": "Suivi démarré",
+                "de": "Aufzeichnung gestartet",
+                "es": "Seguimiento iniciado"
+              }
+            },
+            {
+              "value": "sleep_tracking_stopped",
+              "label": {
+                "en": "Tracking stopped",
+                "fr": "Suivi arrêté",
+                "de": "Aufzeichnung beendet",
+                "es": "Seguimiento detenido"
+              }
+            },
+            {
+              "value": "sleep_tracking_paused",
+              "label": {
+                "en": "Tracking paused",
+                "fr": "Suivi en pause",
+                "de": "Aufzeichnung pausiert",
+                "es": "Seguimiento en pausa"
+              }
+            },
+            {
+              "value": "sleep_tracking_resumed",
+              "label": {
+                "en": "Tracking resumed",
+                "fr": "Suivi repris",
+                "de": "Aufzeichnung fortgesetzt",
+                "es": "Seguimiento reanudado"
+              }
+            },
+            {
+              "value": "alarm_alert_start",
+              "label": {
+                "en": "Alarm ringing",
+                "fr": "Le réveil sonne",
+                "de": "Wecker klingelt",
+                "es": "La alarma suena"
+              }
+            },
+            {
+              "value": "alarm_alert_dismiss",
+              "label": {
+                "en": "Alarm dismissed",
+                "fr": "Réveil arrêté",
+                "de": "Wecker ausgeschaltet",
+                "es": "Alarma desactivada"
+              }
+            },
+            {
+              "value": "alarm_snooze_clicked",
+              "label": {
+                "en": "Snooze",
+                "fr": "Répétition (snooze)",
+                "de": "Schlummern",
+                "es": "Posponer"
+              }
+            },
+            {
+              "value": "alarm_snooze_canceled",
+              "label": {
+                "en": "Snooze canceled",
+                "fr": "Répétition annulée",
+                "de": "Schlummern abgebrochen",
+                "es": "Posponer cancelado"
+              }
+            },
+            {
+              "value": "alarm_skip_next",
+              "label": {
+                "en": "Next alarm skipped",
+                "fr": "Prochain réveil sauté",
+                "de": "Nächster Wecker übersprungen",
+                "es": "Próxima alarma omitida"
+              }
+            },
+            {
+              "value": "alarm_rescheduled",
+              "label": {
+                "en": "Alarm rescheduled",
+                "fr": "Réveil reprogrammé",
+                "de": "Wecker neu geplant",
+                "es": "Alarma reprogramada"
+              }
+            },
+            {
+              "value": "alarm_wake_up_check",
+              "label": {
+                "en": "Wake-up check",
+                "fr": "Vérification du réveil",
+                "de": "Aufwach-Kontrolle",
+                "es": "Comprobación de despertar"
+              }
+            },
+            {
+              "value": "time_to_bed_alarm_alert",
+              "label": {
+                "en": "Time to bed",
+                "fr": "C'est l'heure d'aller au lit",
+                "de": "Zeit fürs Bett",
+                "es": "Hora de acostarse"
+              }
+            },
+            {
+              "value": "show_skip_next_alarm",
+              "label": {
+                "en": "Alarm coming soon",
+                "fr": "Réveil bientôt",
+                "de": "Wecker bald",
+                "es": "Alarma próxima"
+              }
+            },
+            {
+              "value": "before_smart_period",
+              "label": {
+                "en": "Smart wake-up soon",
+                "fr": "Réveil intelligent bientôt",
+                "de": "Smartes Wecken bald",
+                "es": "Despertar inteligente pronto"
+              }
+            },
+            {
+              "value": "smart_period",
+              "label": {
+                "en": "Smart wake-up started",
+                "fr": "Réveil intelligent commencé",
+                "de": "Smartes Wecken begonnen",
+                "es": "Despertar inteligente iniciado"
+              }
+            },
+            {
+              "value": "awake",
+              "label": {
+                "en": "Awake",
+                "fr": "Éveillé",
+                "de": "Wach",
+                "es": "Despierto"
+              }
+            },
+            {
+              "value": "not_awake",
+              "label": {
+                "en": "Fell asleep",
+                "fr": "Endormi",
+                "de": "Eingeschlafen",
+                "es": "Dormido"
+              }
+            },
+            {
+              "value": "light_sleep",
+              "label": {
+                "en": "Light sleep",
+                "fr": "Sommeil léger",
+                "de": "Leichter Schlaf",
+                "es": "Sueño ligero"
+              }
+            },
+            {
+              "value": "deep_sleep",
+              "label": {
+                "en": "Deep sleep",
+                "fr": "Sommeil profond",
+                "de": "Tiefschlaf",
+                "es": "Sueño profundo"
+              }
+            },
+            {
+              "value": "rem",
+              "label": {
+                "en": "REM sleep",
+                "fr": "Sommeil paradoxal",
+                "de": "REM-Schlaf",
+                "es": "Sueño REM"
+              }
+            },
+            {
+              "value": "sound_event_snore",
+              "label": {
+                "en": "Snoring",
+                "fr": "Ronflement",
+                "de": "Schnarchen",
+                "es": "Ronquido"
+              }
+            },
+            {
+              "value": "sound_event_talk",
+              "label": {
+                "en": "Sleep talking",
+                "fr": "Parole",
+                "de": "Sprechen",
+                "es": "Habla"
+              }
+            },
+            {
+              "value": "sound_event_cough",
+              "label": {
+                "en": "Cough",
+                "fr": "Toux",
+                "de": "Husten",
+                "es": "Tos"
+              }
+            },
+            {
+              "value": "sound_event_baby",
+              "label": {
+                "en": "Baby crying",
+                "fr": "Bébé qui pleure",
+                "de": "Baby weint",
+                "es": "Bebé llorando"
+              }
+            },
+            {
+              "value": "sound_event_laugh",
+              "label": {
+                "en": "Laughter",
+                "fr": "Rire",
+                "de": "Lachen",
+                "es": "Risa"
+              }
+            },
+            {
+              "value": "apnea_alarm",
+              "label": {
+                "en": "Breathing alert (apnea)",
+                "fr": "Alerte respiration (apnée)",
+                "de": "Atemalarm (Apnoe)",
+                "es": "Alerta de respiración (apnea)"
+              }
+            },
+            {
+              "value": "antisnoring",
+              "label": {
+                "en": "Anti-snoring triggered",
+                "fr": "Anti-ronflement déclenché",
+                "de": "Anti-Schnarchen ausgelöst",
+                "es": "Antirronquidos activado"
+              }
+            },
+            {
+              "value": "lullaby_start",
+              "label": {
+                "en": "Lullaby started",
+                "fr": "Berceuse lancée",
+                "de": "Schlaflied gestartet",
+                "es": "Nana iniciada"
+              }
+            },
+            {
+              "value": "lullaby_stop",
+              "label": {
+                "en": "Lullaby stopped",
+                "fr": "Berceuse arrêtée",
+                "de": "Schlaflied beendet",
+                "es": "Nana detenida"
+              }
+            },
+            {
+              "value": "lullaby_volume_down",
+              "label": {
+                "en": "Lullaby volume down",
+                "fr": "Volume de la berceuse baissé",
+                "de": "Schlaflied leiser",
+                "es": "Volumen de la nana bajado"
+              }
+            },
+            {
+              "value": "jet_lag_start",
+              "label": {
+                "en": "Jet lag prevention started",
+                "fr": "Anti-décalage horaire démarré",
+                "de": "Jetlag-Vorbeugung gestartet",
+                "es": "Prevención del jet lag iniciada"
+              }
+            },
+            {
+              "value": "jet_lag_stop",
+              "label": {
+                "en": "Jet lag prevention stopped",
+                "fr": "Anti-décalage horaire arrêté",
+                "de": "Jetlag-Vorbeugung beendet",
+                "es": "Prevención del jet lag detenida"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "widgets": [
+    {
+      "key": "sleep",
+      "label": {
+        "en": "Sleep",
+        "fr": "Sommeil",
+        "de": "Schlaf",
+        "es": "Sueño"
+      },
+      "description": {
+        "en": "Tracking, alarm, the night as a hypnogram and the next alarm of a sleeper.",
+        "fr": "Suivi, réveil, la nuit en hypnogramme et le prochain réveil d'un dormeur.",
+        "de": "Aufzeichnung, Wecker, die Nacht als Hypnogramm und der nächste Wecker.",
+        "es": "Seguimiento, alarma, la noche en hipnograma y la próxima alarma."
+      },
+      "icon": "moon",
+      "settings": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Sleeper",
+            "fr": "Dormeur",
+            "de": "Schläfer",
+            "es": "Durmiente"
+          },
+          "required": false
+        }
+      ],
+      "action_timeout_seconds": 15
+    }
+  ],
+  "scene_triggers": [
+    {
+      "key": "tracking_changed",
+      "label": {
+        "en": "Sleep tracking started or stopped",
+        "fr": "Suivi du sommeil démarré ou arrêté",
+        "de": "Schlafaufzeichnung gestartet oder beendet",
+        "es": "Seguimiento del sueño iniciado o detenido"
+      },
+      "description": {
+        "en": "The sleeper started, paused, resumed or stopped sleep tracking.",
+        "fr": "Le dormeur a démarré, mis en pause, repris ou arrêté le suivi du sommeil.",
+        "de": "Der Schläfer hat die Aufzeichnung gestartet, pausiert, fortgesetzt oder beendet.",
+        "es": "El durmiente inició, pausó, reanudó o detuvo el seguimiento del sueño."
+      },
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Sleeper",
+            "fr": "Dormeur",
+            "de": "Schläfer",
+            "es": "Durmiente"
+          },
+          "required": false
+        },
+        {
+          "key": "state",
+          "type": "multi_select",
+          "label": {
+            "en": "Change",
+            "fr": "Changement",
+            "de": "Änderung",
+            "es": "Cambio"
+          },
+          "options": [
+            {
+              "value": "started",
+              "label": {
+                "en": "Tracking started",
+                "fr": "Suivi démarré",
+                "de": "Aufzeichnung gestartet",
+                "es": "Seguimiento iniciado"
+              }
+            },
+            {
+              "value": "stopped",
+              "label": {
+                "en": "Tracking stopped",
+                "fr": "Suivi arrêté",
+                "de": "Aufzeichnung beendet",
+                "es": "Seguimiento detenido"
+              }
+            },
+            {
+              "value": "paused",
+              "label": {
+                "en": "Tracking paused",
+                "fr": "Suivi en pause",
+                "de": "Aufzeichnung pausiert",
+                "es": "Seguimiento en pausa"
+              }
+            },
+            {
+              "value": "resumed",
+              "label": {
+                "en": "Tracking resumed",
+                "fr": "Suivi repris",
+                "de": "Aufzeichnung fortgesetzt",
+                "es": "Seguimiento reanudado"
+              }
+            }
+          ]
+        }
+      ],
+      "variables": [
+        {
+          "key": "sleeper",
+          "type": "string",
+          "label": {
+            "en": "Sleeper name",
+            "fr": "Nom du dormeur",
+            "de": "Name des Schläfers",
+            "es": "Nombre del durmiente"
+          }
+        },
+        {
+          "key": "state",
+          "type": "string",
+          "label": {
+            "en": "Change",
+            "fr": "Changement",
+            "de": "Änderung",
+            "es": "Cambio"
+          }
+        },
+        {
+          "key": "duration_hours",
+          "type": "number",
+          "label": {
+            "en": "Sleep duration (h, when stopped)",
+            "fr": "Durée du sommeil (h, à l'arrêt)",
+            "de": "Schlafdauer (h, beim Beenden)",
+            "es": "Duración del sueño (h, al detener)"
+          }
+        }
+      ]
+    },
+    {
+      "key": "alarm_event",
+      "label": {
+        "en": "Alarm event",
+        "fr": "Événement de réveil",
+        "de": "Wecker-Ereignis",
+        "es": "Evento de alarma"
+      },
+      "description": {
+        "en": "The alarm rang, was snoozed, dismissed or rescheduled, or a smart wake-up begins.",
+        "fr": "Le réveil a sonné, a été répété, arrêté ou reprogrammé, ou un réveil intelligent commence.",
+        "de": "Der Wecker hat geklingelt, wurde geschlummert, ausgeschaltet oder neu geplant, oder smartes Wecken beginnt.",
+        "es": "La alarma sonó, se pospuso, se desactivó o se reprogramó, o empieza un despertar inteligente."
+      },
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Sleeper",
+            "fr": "Dormeur",
+            "de": "Schläfer",
+            "es": "Durmiente"
+          },
+          "required": false
+        },
+        {
+          "key": "event",
+          "type": "multi_select",
+          "label": {
+            "en": "Event",
+            "fr": "Événement",
+            "de": "Ereignis",
+            "es": "Evento"
+          },
+          "options": [
+            {
+              "value": "alert_start",
+              "label": {
+                "en": "Alarm ringing",
+                "fr": "Le réveil sonne",
+                "de": "Wecker klingelt",
+                "es": "La alarma suena"
+              }
+            },
+            {
+              "value": "alert_dismiss",
+              "label": {
+                "en": "Alarm dismissed",
+                "fr": "Réveil arrêté",
+                "de": "Wecker ausgeschaltet",
+                "es": "Alarma desactivada"
+              }
+            },
+            {
+              "value": "snooze_clicked",
+              "label": {
+                "en": "Snooze",
+                "fr": "Répétition (snooze)",
+                "de": "Schlummern",
+                "es": "Posponer"
+              }
+            },
+            {
+              "value": "snooze_canceled",
+              "label": {
+                "en": "Snooze canceled",
+                "fr": "Répétition annulée",
+                "de": "Schlummern abgebrochen",
+                "es": "Posponer cancelado"
+              }
+            },
+            {
+              "value": "skip_next",
+              "label": {
+                "en": "Next alarm skipped",
+                "fr": "Prochain réveil sauté",
+                "de": "Nächster Wecker übersprungen",
+                "es": "Próxima alarma omitida"
+              }
+            },
+            {
+              "value": "rescheduled",
+              "label": {
+                "en": "Alarm rescheduled",
+                "fr": "Réveil reprogrammé",
+                "de": "Wecker neu geplant",
+                "es": "Alarma reprogramada"
+              }
+            },
+            {
+              "value": "wake_up_check",
+              "label": {
+                "en": "Wake-up check",
+                "fr": "Vérification du réveil",
+                "de": "Aufwach-Kontrolle",
+                "es": "Comprobación de despertar"
+              }
+            },
+            {
+              "value": "time_to_bed",
+              "label": {
+                "en": "Time to bed",
+                "fr": "C'est l'heure d'aller au lit",
+                "de": "Zeit fürs Bett",
+                "es": "Hora de acostarse"
+              }
+            },
+            {
+              "value": "show_skip_next",
+              "label": {
+                "en": "Alarm coming soon",
+                "fr": "Réveil bientôt",
+                "de": "Wecker bald",
+                "es": "Alarma próxima"
+              }
+            },
+            {
+              "value": "before_smart_period",
+              "label": {
+                "en": "Smart wake-up soon",
+                "fr": "Réveil intelligent bientôt",
+                "de": "Smartes Wecken bald",
+                "es": "Despertar inteligente pronto"
+              }
+            },
+            {
+              "value": "smart_period",
+              "label": {
+                "en": "Smart wake-up started",
+                "fr": "Réveil intelligent commencé",
+                "de": "Smartes Wecken begonnen",
+                "es": "Despertar inteligente iniciado"
+              }
+            }
+          ]
+        }
+      ],
+      "variables": [
+        {
+          "key": "sleeper",
+          "type": "string",
+          "label": {
+            "en": "Sleeper name",
+            "fr": "Nom du dormeur",
+            "de": "Name des Schläfers",
+            "es": "Nombre del durmiente"
+          }
+        },
+        {
+          "key": "event",
+          "type": "string",
+          "label": {
+            "en": "Event",
+            "fr": "Événement",
+            "de": "Ereignis",
+            "es": "Evento"
+          }
+        },
+        {
+          "key": "alarm_time",
+          "type": "string",
+          "label": {
+            "en": "Alarm time",
+            "fr": "Heure du réveil",
+            "de": "Weckzeit",
+            "es": "Hora de la alarma"
+          }
+        },
+        {
+          "key": "alarm_label",
+          "type": "string",
+          "label": {
+            "en": "Alarm label",
+            "fr": "Libellé du réveil",
+            "de": "Weckerbezeichnung",
+            "es": "Etiqueta de la alarma"
+          }
+        }
+      ]
+    },
+    {
+      "key": "sleep_phase_changed",
+      "label": {
+        "en": "Sleep phase changed",
+        "fr": "Phase de sommeil changée",
+        "de": "Schlafphase geändert",
+        "es": "Fase de sueño cambiada"
+      },
+      "description": {
+        "en": "The app detected the sleeper awake, asleep, in light, deep or REM sleep.",
+        "fr": "L'appli a détecté le dormeur éveillé, endormi, en sommeil léger, profond ou paradoxal.",
+        "de": "Die App hat den Schläfer wach, eingeschlafen, im leichten, tiefen oder REM-Schlaf erkannt.",
+        "es": "La app detectó al durmiente despierto, dormido, en sueño ligero, profundo o REM."
+      },
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Sleeper",
+            "fr": "Dormeur",
+            "de": "Schläfer",
+            "es": "Durmiente"
+          },
+          "required": false
+        },
+        {
+          "key": "phase",
+          "type": "multi_select",
+          "label": {
+            "en": "Phase",
+            "fr": "Phase",
+            "de": "Phase",
+            "es": "Fase"
+          },
+          "options": [
+            {
+              "value": "awake",
+              "label": {
+                "en": "Awake",
+                "fr": "Éveillé",
+                "de": "Wach",
+                "es": "Despierto"
+              }
+            },
+            {
+              "value": "not_awake",
+              "label": {
+                "en": "Fell asleep",
+                "fr": "Endormi",
+                "de": "Eingeschlafen",
+                "es": "Dormido"
+              }
+            },
+            {
+              "value": "light_sleep",
+              "label": {
+                "en": "Light sleep",
+                "fr": "Sommeil léger",
+                "de": "Leichter Schlaf",
+                "es": "Sueño ligero"
+              }
+            },
+            {
+              "value": "deep_sleep",
+              "label": {
+                "en": "Deep sleep",
+                "fr": "Sommeil profond",
+                "de": "Tiefschlaf",
+                "es": "Sueño profundo"
+              }
+            },
+            {
+              "value": "rem",
+              "label": {
+                "en": "REM sleep",
+                "fr": "Sommeil paradoxal",
+                "de": "REM-Schlaf",
+                "es": "Sueño REM"
+              }
+            }
+          ]
+        }
+      ],
+      "variables": [
+        {
+          "key": "sleeper",
+          "type": "string",
+          "label": {
+            "en": "Sleeper name",
+            "fr": "Nom du dormeur",
+            "de": "Name des Schläfers",
+            "es": "Nombre del durmiente"
+          }
+        },
+        {
+          "key": "phase",
+          "type": "string",
+          "label": {
+            "en": "Phase",
+            "fr": "Phase",
+            "de": "Phase",
+            "es": "Fase"
+          }
+        }
+      ]
+    },
+    {
+      "key": "sound_detected",
+      "label": {
+        "en": "Sound detected during sleep",
+        "fr": "Son détecté pendant le sommeil",
+        "de": "Geräusch im Schlaf erkannt",
+        "es": "Sonido detectado durante el sueño"
+      },
+      "description": {
+        "en": "Snoring, talking, coughing, a baby crying, laughter, or a breathing alert.",
+        "fr": "Ronflement, parole, toux, bébé qui pleure, rire, ou alerte respiration.",
+        "de": "Schnarchen, Sprechen, Husten, ein weinendes Baby, Lachen oder ein Atemalarm.",
+        "es": "Ronquido, habla, tos, un bebé llorando, risa o una alerta de respiración."
+      },
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Sleeper",
+            "fr": "Dormeur",
+            "de": "Schläfer",
+            "es": "Durmiente"
+          },
+          "required": false
+        },
+        {
+          "key": "sound",
+          "type": "multi_select",
+          "label": {
+            "en": "Sound",
+            "fr": "Son",
+            "de": "Geräusch",
+            "es": "Sonido"
+          },
+          "options": [
+            {
+              "value": "snore",
+              "label": {
+                "en": "Snoring",
+                "fr": "Ronflement",
+                "de": "Schnarchen",
+                "es": "Ronquido"
+              }
+            },
+            {
+              "value": "talk",
+              "label": {
+                "en": "Sleep talking",
+                "fr": "Parole",
+                "de": "Sprechen",
+                "es": "Habla"
+              }
+            },
+            {
+              "value": "cough",
+              "label": {
+                "en": "Cough",
+                "fr": "Toux",
+                "de": "Husten",
+                "es": "Tos"
+              }
+            },
+            {
+              "value": "baby",
+              "label": {
+                "en": "Baby crying",
+                "fr": "Bébé qui pleure",
+                "de": "Baby weint",
+                "es": "Bebé llorando"
+              }
+            },
+            {
+              "value": "laugh",
+              "label": {
+                "en": "Laughter",
+                "fr": "Rire",
+                "de": "Lachen",
+                "es": "Risa"
+              }
+            },
+            {
+              "value": "apnea_alarm",
+              "label": {
+                "en": "Breathing alert (apnea)",
+                "fr": "Alerte respiration (apnée)",
+                "de": "Atemalarm (Apnoe)",
+                "es": "Alerta de respiración (apnea)"
+              }
+            },
+            {
+              "value": "antisnoring",
+              "label": {
+                "en": "Anti-snoring triggered",
+                "fr": "Anti-ronflement déclenché",
+                "de": "Anti-Schnarchen ausgelöst",
+                "es": "Antirronquidos activado"
+              }
+            }
+          ]
+        }
+      ],
+      "variables": [
+        {
+          "key": "sleeper",
+          "type": "string",
+          "label": {
+            "en": "Sleeper name",
+            "fr": "Nom du dormeur",
+            "de": "Name des Schläfers",
+            "es": "Nombre del durmiente"
+          }
+        },
+        {
+          "key": "sound",
+          "type": "string",
+          "label": {
+            "en": "Sound",
+            "fr": "Son",
+            "de": "Geräusch",
+            "es": "Sonido"
+          }
+        }
+      ]
+    },
+    {
+      "key": "any_event",
+      "label": {
+        "en": "Any Sleep as Android event",
+        "fr": "N'importe quel événement Sleep as Android",
+        "de": "Beliebiges Sleep-as-Android-Ereignis",
+        "es": "Cualquier evento de Sleep as Android"
+      },
+      "description": {
+        "en": "Every event of the app, lullaby and jet lag included, with its raw values.",
+        "fr": "Chaque événement de l'appli, berceuse et décalage horaire compris, avec ses valeurs brutes.",
+        "de": "Jedes Ereignis der App, Schlaflied und Jetlag inklusive, mit seinen Rohwerten.",
+        "es": "Cada evento de la app, nana y jet lag incluidos, con sus valores brutos."
+      },
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Sleeper",
+            "fr": "Dormeur",
+            "de": "Schläfer",
+            "es": "Durmiente"
+          },
+          "required": false
+        }
+      ],
+      "variables": [
+        {
+          "key": "sleeper",
+          "type": "string",
+          "label": {
+            "en": "Sleeper name",
+            "fr": "Nom du dormeur",
+            "de": "Name des Schläfers",
+            "es": "Nombre del durmiente"
+          }
+        },
+        {
+          "key": "event",
+          "type": "string",
+          "label": {
+            "en": "Event (raw name)",
+            "fr": "Événement (nom brut)",
+            "de": "Ereignis (Rohname)",
+            "es": "Evento (nombre bruto)"
+          }
+        },
+        {
+          "key": "value1",
+          "type": "string",
+          "label": {
+            "en": "Value 1",
+            "fr": "Valeur 1",
+            "de": "Wert 1",
+            "es": "Valor 1"
+          }
+        },
+        {
+          "key": "value2",
+          "type": "string",
+          "label": {
+            "en": "Value 2",
+            "fr": "Valeur 2",
+            "de": "Wert 2",
+            "es": "Valor 2"
+          }
+        },
+        {
+          "key": "value3",
+          "type": "string",
+          "label": {
+            "en": "Value 3",
+            "fr": "Valeur 3",
+            "de": "Wert 3",
+            "es": "Valor 3"
+          }
+        }
+      ]
+    }
+  ],
+  "scene_actions": [
+    {
+      "key": "get_sleep_status",
+      "label": {
+        "en": "Read the sleep status",
+        "fr": "Lire l'état du sommeil",
+        "de": "Schlafstatus lesen",
+        "es": "Leer el estado del sueño"
+      },
+      "description": {
+        "en": "Puts the tracking, phase, next alarm and last night of a sleeper in scene variables.",
+        "fr": "Met le suivi, la phase, le prochain réveil et la dernière nuit d'un dormeur dans des variables.",
+        "de": "Legt Aufzeichnung, Phase, nächsten Wecker und letzte Nacht in Szenenvariablen ab.",
+        "es": "Pone el seguimiento, la fase, la próxima alarma y la última noche en variables de escena."
+      },
+      "timeout_seconds": 10,
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Sleeper",
+            "fr": "Dormeur",
+            "de": "Schläfer",
+            "es": "Durmiente"
+          },
+          "required": true
+        }
+      ],
+      "outputs": [
+        {
+          "key": "tracking",
+          "type": "boolean",
+          "label": {
+            "en": "Tracking on",
+            "fr": "Suivi en cours",
+            "de": "Aufzeichnung läuft",
+            "es": "Seguimiento activo"
+          }
+        },
+        {
+          "key": "phase",
+          "type": "string",
+          "label": {
+            "en": "Phase",
+            "fr": "Phase",
+            "de": "Phase",
+            "es": "Fase"
+          }
+        },
+        {
+          "key": "alarm_ringing",
+          "type": "boolean",
+          "label": {
+            "en": "Alarm ringing",
+            "fr": "Réveil qui sonne",
+            "de": "Wecker klingelt",
+            "es": "Alarma sonando"
+          }
+        },
+        {
+          "key": "next_alarm",
+          "type": "string",
+          "label": {
+            "en": "Next alarm",
+            "fr": "Prochain réveil",
+            "de": "Nächster Wecker",
+            "es": "Próxima alarma"
+          }
+        },
+        {
+          "key": "last_event",
+          "type": "string",
+          "label": {
+            "en": "Last event",
+            "fr": "Dernier événement",
+            "de": "Letztes Ereignis",
+            "es": "Último evento"
+          }
+        },
+        {
+          "key": "last_sleep_hours",
+          "type": "number",
+          "label": {
+            "en": "Last sleep duration (h)",
+            "fr": "Durée du dernier sommeil (h)",
+            "de": "Letzte Schlafdauer (h)",
+            "es": "Duración del último sueño (h)"
+          }
+        }
+      ]
+    },
+    {
+      "key": "reset_sleeper",
+      "label": {
+        "en": "Reset a sleeper",
+        "fr": "Réinitialiser un dormeur",
+        "de": "Schläfer zurücksetzen",
+        "es": "Restablecer un durmiente"
+      },
+      "description": {
+        "en": "Back to awake with nothing running, e.g. when the phone died during the night.",
+        "fr": "Remet à éveillé sans rien en cours, par exemple quand le téléphone s’est éteint la nuit.",
+        "de": "Zurück auf wach, nichts läuft, z. B. wenn das Telefon nachts ausging.",
+        "es": "Vuelve a despierto sin nada en curso, p. ej. si el teléfono se apagó por la noche."
+      },
+      "timeout_seconds": 10,
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Sleeper",
+            "fr": "Dormeur",
+            "de": "Schläfer",
+            "es": "Durmiente"
+          },
+          "required": true
+        }
+      ],
+      "outputs": [
+        {
+          "key": "reset",
+          "type": "boolean",
+          "label": {
+            "en": "Reset done",
+            "fr": "Réinitialisé",
+            "de": "Zurückgesetzt",
+            "es": "Restablecido"
+          }
+        }
+      ]
+    }
+  ]
+}
