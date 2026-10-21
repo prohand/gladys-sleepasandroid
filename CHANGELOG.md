@@ -6,6 +6,8 @@ All notable changes to this integration are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-10-21
+
 ### Added
 
 - First version of the Sleep as Android integration, built on the official Gladys JavaScript
@@ -29,4 +31,5 @@ All notable changes to this integration are documented here. The format follows
 - `SECURITY.md`, `CHANGELOG.md`, `CLAUDE.md`, and the CI, build, release and GitHub releases
   workflows.
 
-[Unreleased]: https://github.com/prohand/gladys-sleepasandroid/commits/main
+[Unreleased]: https://github.com/prohand/gladys-sleepasandroid/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/prohand/gladys-sleepasandroid/releases/tag/v1.0.1
