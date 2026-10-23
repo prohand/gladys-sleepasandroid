@@ -8,8 +8,8 @@
     "de": "Schlafaufzeichnung, Wecker und Schlafphasen der App Sleep as Android in Gladys.",
     "es": "Seguimiento del sueño, alarmas y fases de sueño de la app Sleep as Android en Gladys."
   },
-  "version": "1.0.1",
-  "docker_image": "ghcr.io/prohand/gladys-sleepasandroid:1.0.1",
+  "version": "1.0.2",
+  "docker_image": "ghcr.io/prohand/gladys-sleepasandroid:1.0.2",
   "gladys_version": ">=5.1.0",
   "cover_image": "https://raw.githubusercontent.com/prohand/gladys-sleepasandroid/main/cover.png",
   "categories": ["services", "assistants"],

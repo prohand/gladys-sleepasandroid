@@ -1,6 +1,6 @@
 {
   "name": "gladys-sleepasandroid",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": true,
   "description": "Gladys Assistant external integration for the Sleep as Android app (sleep tracking, alarms, sleep phases).",
   "type": "module",
