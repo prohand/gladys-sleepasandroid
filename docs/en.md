@@ -6,7 +6,7 @@ next alarm and how long you slept. Every event of the app can start a Gladys sce
 shutters when tracking starts, turn the lights on softly when the alarm rings, send a message when
 a baby cry is heard.
 
-Requires **Gladys 5.1 or later**.
+Requires **Gladys 5.3 or later**.
 
 ## How the events reach Gladys
 

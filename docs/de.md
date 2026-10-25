@@ -6,7 +6,7 @@ nächste Wecker und wie lange du geschlafen hast. Jedes Ereignis der App kann ei
 starten: Rollläden schließen, wenn die Aufzeichnung startet, das Licht sanft einschalten, wenn der
 Wecker klingelt, eine Nachricht senden, wenn ein Baby weint.
 
-Erfordert **Gladys 5.1 oder neuer**.
+Erfordert **Gladys 5.3 oder neuer**.
 
 ## Wie die Ereignisse zu Gladys gelangen
 

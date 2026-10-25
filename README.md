@@ -1,7 +1,7 @@
 # Sleep as Android for Gladys Assistant
 
 External integration bringing the [Sleep as Android](https://sleep.urbandroid.org/) app into
-[Gladys Assistant](https://gladysassistant.com) (Gladys **5.1+**), built on the official
+[Gladys Assistant](https://gladysassistant.com) (Gladys **5.3+**), built on the official
 [JavaScript template](https://github.com/GladysAssistant/integration-template-js) and the
 [`@gladysassistant/integration-sdk`](https://github.com/GladysAssistant/integration-sdk-js).
 

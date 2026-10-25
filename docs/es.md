@@ -6,7 +6,7 @@ sonando, la próxima alarma y cuánto ha dormido. Cada evento de la app puede in
 Gladys: cerrar las persianas cuando empieza el seguimiento, encender la luz suavemente cuando suena
 la alarma, enviar un mensaje cuando se oye llorar a un bebé.
 
-Requiere **Gladys 5.1 o posterior**.
+Requiere **Gladys 5.3 o posterior**.
 
 ## Cómo llegan los eventos a Gladys
 
