@@ -111,6 +111,10 @@ const CATEGORIES = [
   'notifications',
   'assistants',
   'services',
+  'transport',
+  'vehicles',
+  'servers',
+  'leisure',
 ];
 
 test('catalog: name, categories and the Gladys floor', () => {
@@ -119,9 +123,26 @@ test('catalog: name, categories and the Gladys floor', () => {
   for (const category of manifest.categories) {
     assert.ok(CATEGORIES.includes(category), category);
   }
-  // Widgets and scene declarations need Gladys 5.1.
+  // Widgets and scene declarations need Gladys 5.1, keywords / countries /
+  // music 5.3: an older core rejects the whole manifest over an unknown field.
   const [major, minor] = manifest.gladys_version.replace(/^>=/, '').split('.').map(Number);
   assert.ok(major > 5 || (major === 5 && minor >= 1), manifest.gladys_version);
+  if (['keywords', 'countries', 'music'].some((field) => field in manifest)) {
+    assert.ok(major > 5 || (major === 5 && minor >= 3), manifest.gladys_version);
+  }
+});
+
+test('catalog: search keywords follow the store rules, and no country restriction', () => {
+  const { keywords } = manifest;
+  assert.ok(Array.isArray(keywords) && keywords.length >= 1 && keywords.length <= 10);
+  const normalized = keywords.map((keyword) => keyword.trim().toLowerCase());
+  assert.equal(new Set(normalized).size, keywords.length, 'keywords must be unique');
+  for (const keyword of normalized) {
+    assert.ok(keyword.length >= 2 && keyword.length <= 30, keyword);
+  }
+  // Sleep as Android is used everywhere: `countries` would hide the
+  // integration from the catalog of every other country.
+  assert.equal(manifest.countries, undefined);
 });
 
 test('the scene triggers are the ones the code fires', () => {

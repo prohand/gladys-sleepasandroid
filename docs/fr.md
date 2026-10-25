@@ -6,7 +6,7 @@ paradoxal), le réveil qui sonne, le prochain réveil et la durée de votre nuit
 l'appli peut lancer une scène Gladys : fermer les volets quand le suivi démarre, allumer doucement
 la lumière quand le réveil sonne, envoyer un message quand un bébé pleure.
 
-Nécessite **Gladys 5.1 ou plus récent**.
+Nécessite **Gladys 5.3 ou plus récent**.
 
 ## Comment les événements arrivent dans Gladys
 
