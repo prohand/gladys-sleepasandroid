@@ -6,6 +6,10 @@ All notable changes to this integration are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.1.4] - 2026-11-16
+
+- Maintenance release, no functional change.
+
 ## [1.1.3] - 2026-11-16
 
 - Update `@gladysassistant/integration-sdk` to 0.16.1 (security update).
@@ -58,7 +62,8 @@ All notable changes to this integration are documented here. The format follows
 - `SECURITY.md`, `CHANGELOG.md`, `CLAUDE.md`, and the CI, build, release and GitHub releases
   workflows.
 
-[Unreleased]: https://github.com/prohand/gladys-sleepasandroid/compare/v1.1.3...HEAD
+[Unreleased]: https://github.com/prohand/gladys-sleepasandroid/compare/v1.1.4...HEAD
+[1.1.4]: https://github.com/prohand/gladys-sleepasandroid/compare/v1.1.3...v1.1.4
 [1.1.3]: https://github.com/prohand/gladys-sleepasandroid/compare/v1.1.2...v1.1.3
 [1.1.2]: https://github.com/prohand/gladys-sleepasandroid/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/prohand/gladys-sleepasandroid/compare/v1.1.0...v1.1.1
